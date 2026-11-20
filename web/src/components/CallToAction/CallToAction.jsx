@@ -1,13 +1,15 @@
+import { useNavigate } from "react-router-dom";
 import CallToActionButton from "./CallToActionButton";
 
 function CallToAction() {
+  const navigate = useNavigate();
+
   const handleClick = () => {
-    console.log('Comenzar Gratis clicked');
-    // Aquí puedes agregar la lógica de navegación o acción
+    navigate("/login");
   };
 
   return (
-    <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-cyan-600 to-teal-600 relative overflow-hidden">
+      <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-cyan-600 to-teal-600 relative overflow-hidden">
       <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=1600')] opacity-10 bg-cover bg-center" />
       
       <div className="max-w-4xl mx-auto text-center relative">

@@ -1,225 +1,162 @@
-import { useState } from "react";
+import { supabase } from "./supabaseClient";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+const BUCKET_NAME = "health-documents";
 
-const getToken = () => localStorage.getItem("token");
+// Subir archivos a Supabase Storage y devolver sus URLs públicas
+const uploadDocuments = async (files = [], petId = "general") => {
+  if (!Array.isArray(files) || files.length === 0) return [];
 
-// Crear HealthRecord (con archivos)
-export const createHealthRecordRequest = async (data) => {
-  const token = getToken();
+  const uploadedUrls = [];
 
-  const formData = new FormData();
+  for (const file of files) {
+    if (!(file instanceof File)) continue;
 
-  for (const key in data) {
-    if (key === "documents" && Array.isArray(data[key])) {
-      data[key].forEach((file) => {
-        formData.append("documents", file);
-      });
-    } else if (key === "document_urls" && Array.isArray(data[key])) {
-      // CORRECCIÓN: Convertir a string JSON
-      formData.append("document_urls", JSON.stringify(data[key]));
-    } else if (key !== "documents") {
-      if (typeof data[key] === "object" && data[key] !== null) {
-        formData.append(key, JSON.stringify(data[key]));
-      } else {
-        formData.append(key, String(data[key]));
-      }
+    const cleanName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+    const filePath = `${petId}/${Date.now()}_${cleanName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from(BUCKET_NAME)
+      .upload(filePath, file, { upsert: false });
+
+    if (uploadError) {
+      console.warn("Error subiendo archivo a Storage:", uploadError.message);
+      continue;
+    }
+
+    const { data: publicData } = supabase.storage
+      .from(BUCKET_NAME)
+      .getPublicUrl(filePath);
+
+    if (publicData?.publicUrl) {
+      uploadedUrls.push(publicData.publicUrl);
     }
   }
 
-  console.log("Create - FormData contenido:");
-  for (let pair of formData.entries()) {
-    console.log(pair[0], pair[1]);
-  }
-
-  const res = await fetch(`${API_URL}/health-records`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    credentials: "include",
-    body: formData,
-  });
-
-  if (!res.ok) throw new Error(await res.text());
-  return await res.json();
+  return uploadedUrls;
 };
 
-// Obtener todos
+// Limpiar campos para que coincidan con la tabla health_records
+const sanitizeRecordPayload = (data = {}, extraDocUrls = []) => {
+  const existingUrls = Array.isArray(data.document_urls)
+    ? data.document_urls
+    : [];
+
+  const payload = {
+    pet_id: data.pet_id,
+    type: data.type, // 'VACUNA' | 'CHEQUEO' | 'TRATAMIENTO'
+    description: data.description ?? null,
+    first_date: data.first_date || null,
+    second_date: data.second_date || null,
+    vet_name: data.vet_name ?? null,
+    document_urls: [...existingUrls, ...extraDocUrls],
+    updated_at: new Date().toISOString(),
+  };
+
+  // Eliminar claves undefined para no sobrescribir con vacío en updates
+  Object.keys(payload).forEach((key) => {
+    if (payload[key] === undefined) {
+      delete payload[key];
+    }
+  });
+
+  return payload;
+};
+
+// Crear HealthRecord
+export const createHealthRecordRequest = async (data) => {
+  const newUrls = await uploadDocuments(data.documents, data.pet_id);
+  const payload = sanitizeRecordPayload(data, newUrls);
+
+  const { data: created, error } = await supabase
+    .from("health_records")
+    .insert([payload])
+    .select()
+    .single();
+
+  if (error) throw new Error(error.message);
+  return created;
+};
+
+// Obtener todos (incluye datos básicos de la mascota si existen)
 export const getHealthRecordsRequest = async () => {
-  const token = getToken();
+  const { data, error } = await supabase
+    .from("health_records")
+    .select(`
+      *,
+      pet:pets (
+        id,
+        name,
+        specie,
+        breed,
+        photo_url,
+        owner_id
+      )
+    `)
+    .order("created_at", { ascending: false });
 
-  const res = await fetch(`${API_URL}/health-records`, {
-    headers: { Authorization: `Bearer ${token}` },
-    credentials: "include",
-  });
-
-  return await res.json();
+  if (error) throw new Error(error.message);
+  return data ?? [];
 };
 
-// Obtener uno
+// Obtener uno por ID
 export const getHealthRecordByIdRequest = async (id) => {
-  const token = getToken();
+  const { data, error } = await supabase
+    .from("health_records")
+    .select(`
+      *,
+      pet:pets (
+        id,
+        name,
+        specie,
+        breed,
+        photo_url,
+        owner_id
+      )
+    `)
+    .eq("id", id)
+    .single();
 
-  const res = await fetch(`${API_URL}/health-records/${id}`, {
-    headers: { Authorization: `Bearer ${token}` },
-    credentials: "include",
-  });
-
-  return await res.json();
+  if (error) throw new Error(error.message);
+  return data;
 };
 
 // Obtener registros de una mascota específica
 export const getHealthRecordsByPetRequest = async (petId) => {
-  const token = getToken();
+  const { data, error } = await supabase
+    .from("health_records")
+    .select("*")
+    .eq("pet_id", petId)
+    .order("created_at", { ascending: false });
 
-  const res = await fetch(`${API_URL}/health-records/pet/${petId}`, {
-    headers: { Authorization: `Bearer ${token}` },
-    credentials: "include",
-  });
+  if (error) throw new Error(error.message);
+  return data ?? [];
+};
 
-  if (!res.ok) {
-    throw new Error(`Error al obtener registros: ${res.status}`);
-  }
+// Actualizar
+export const updateHealthRecordRequest = async (id, data) => {
+  const newUrls = await uploadDocuments(data.documents, data.pet_id);
+  const payload = sanitizeRecordPayload(data, newUrls);
 
-  return await res.json();
+  const { data: updated, error } = await supabase
+    .from("health_records")
+    .update(payload)
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) throw new Error(error.message);
+  return updated;
 };
 
 // Eliminar
 export const deleteHealthRecordRequest = async (id) => {
-  const token = getToken();
+  const { data, error } = await supabase
+    .from("health_records")
+    .delete()
+    .eq("id", id)
+    .select()
+    .single();
 
-  const res = await fetch(`${API_URL}/health-records/${id}`, {
-    method: "DELETE",
-    headers: { Authorization: `Bearer ${token}` },
-    credentials: "include",
-  });
-
-  return await res.json();
-};
-
-export const updateHealthRecordRequest = async (id, data) => {
-  const token = getToken();
-
-  console.log("=== INICIO updateHealthRecordRequest ===");
-  console.log("ID:", id);
-  console.log("Data completa:", data);
-
-  // Función para verificar si es un archivo
-  const isFile = (obj) => {
-    return (
-      obj &&
-      typeof obj === "object" &&
-      obj.constructor &&
-      obj.constructor.name === "File" &&
-      obj.name !== undefined &&
-      obj.size !== undefined &&
-      obj.type !== undefined
-    );
-  };
-
-  // Verificar si hay archivos
-  let hasFiles = false;
-  if (data && data.documents) {
-    if (Array.isArray(data.documents) && data.documents.length > 0) {
-      hasFiles = data.documents.some((item) => isFile(item));
-      console.log("Array documents detectado, hasFiles:", hasFiles);
-    } else if (isFile(data.documents)) {
-      // Si documents es un solo archivo, convertirlo a array
-      data.documents = [data.documents];
-      hasFiles = true;
-      console.log("Single file convertido a array");
-    }
-  }
-
-  console.log("¿Tiene archivos?", hasFiles);
-
-  if (hasFiles) {
-    console.log("Procesando CON archivos...");
-    const formData = new FormData();
-
-    // Agregar archivos
-    data.documents.forEach((file) => {
-      if (isFile(file)) {
-        console.log("Agregando file:", file.name, file.type);
-        formData.append("documents", file, file.name);
-      }
-    });
-
-    // IMPORTANTE: Solo enviar document_urls si NO está vacío
-    // Y enviarlo como múltiples campos document_urls[0], document_urls[1], etc.
-    if (
-      data.document_urls &&
-      Array.isArray(data.document_urls) &&
-      data.document_urls.length > 0
-    ) {
-      console.log(
-        "Agregando document_urls como múltiples campos:",
-        data.document_urls
-      );
-
-      // Enviar cada URL como campo separado
-      data.document_urls.forEach((url, index) => {
-        formData.append(`document_urls[${index}]`, url);
-      });
-    } else {
-      console.log("document_urls está vacío o no existe, no se envía");
-    }
-
-    console.log("FormData final:");
-    for (let [key, value] of formData.entries()) {
-      console.log(key, isFile(value) ? `FILE: ${value.name}` : value);
-    }
-
-    const res = await fetch(`${API_URL}/health-records/${id}`, {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      credentials: "include",
-      body: formData,
-    });
-
-    if (!res.ok) {
-      const error = await res.text();
-      console.error("Error response:", error);
-      throw new Error(error);
-    }
-
-    const result = await res.json();
-    console.log("Respuesta exitosa:", result);
-    return result;
-  } else {
-    console.log("Procesando SIN archivos...");
-
-    // Filtrar propiedades undefined/null
-    const cleanData = {};
-    Object.keys(data).forEach((key) => {
-      if (data[key] !== undefined && data[key] !== null) {
-        cleanData[key] = data[key];
-      }
-    });
-
-    console.log("JSON a enviar:", cleanData);
-
-    const res = await fetch(`${API_URL}/health-records/${id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      credentials: "include",
-      body: JSON.stringify(cleanData),
-    });
-
-    if (!res.ok) {
-      const error = await res.text();
-      console.error("Error response:", error);
-      throw new Error(error);
-    }
-
-    const result = await res.json();
-    console.log("Respuesta exitosa:", result);
-    return result;
-  }
+  if (error) throw new Error(error.message);
+  return data;
 };

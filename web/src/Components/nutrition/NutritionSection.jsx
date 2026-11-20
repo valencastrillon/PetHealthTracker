@@ -24,13 +24,13 @@ export default function NutritionSection() {
     deleteRecord,
   } = useNutritionRecords();
 
-  //ultimo registro nutricional
+  // último registro nutricional
   const latestNutritionRecord =
     nutritionRecords.length > 0
       ? nutritionRecords[nutritionRecords.length - 1]
       : null;
 
-  //Borrar registro nutricional
+  // borrar registro nutricional
   const handleDeleteNutrition = async () => {
     if (!latestNutritionRecord) return;
 
@@ -45,8 +45,7 @@ export default function NutritionSection() {
     }
   };
 
-  // Seleccionar primera mascota
-
+  // seleccionar primera mascota
   useEffect(() => {
     if (pets.length > 0 && !selectedPet) {
       setSelectedPet(pets[0]);
@@ -57,7 +56,7 @@ export default function NutritionSection() {
   useEffect(() => {
     if (!selectedPet) return;
     getNutritionRecords(selectedPet.id);
-  }, [selectedPet]);
+  }, [selectedPet, getNutritionRecords]);
 
   // cargar historial de pesos
   useEffect(() => {
@@ -78,9 +77,32 @@ export default function NutritionSection() {
     loadWeights();
   }, [selectedPet]);
 
-  //pantalla blanca
+  // Si no hay mascotas cargadas aún, mostrar un estado vacío claro en vez de dejar la pantalla en blanco
   if (!selectedPet) {
-    return <div className="max-w-7xl mx-auto p-4 lg:p-8 h-96" />;
+    return (
+      <div className="max-w-7xl mx-auto p-4 lg:p-8">
+        <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-3xl p-6 lg:p-8 mb-6 text-white shadow-xl">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl lg:text-3xl font-bold mb-1">Nutrición</h1>
+              <p className="text-purple-100">Plan de alimentación</p>
+            </div>
+            <div className="w-12 h-12 lg:w-16 lg:h-16 bg-white/20 backdrop-blur rounded-full flex items-center justify-center">
+              <Clock className="w-6 h-6 lg:w-8 lg:h-8" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl p-8 text-center shadow-sm border border-gray-100 space-y-3">
+          <p className="text-lg font-semibold text-gray-800">
+            Aún no hay mascotas para mostrar su plan de nutrición
+          </p>
+          <p className="text-sm text-gray-500">
+            Crea una mascota en la sección &ldquo;Mis mascotas&rdquo; para comenzar a registrar su alimentación y peso.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (

@@ -1,9 +1,11 @@
 import React from 'react';
 import { FaCheckCircle, FaArrowRight, FaPaw  } from 'react-icons/fa';
 import heroDog from '/img-principal.jpg';
+import { useNavigate } from "react-router-dom";
 
 
 const Banner = () => {
+    const navigate = useNavigate();    
     return (
         <section className="pt-24 sm:pt-32 pb-12 sm:pb-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-cyan-50 via-blue-50 to-teal-50 relative overflow-hidden">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -22,15 +24,14 @@ const Banner = () => {
                             <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-6 sm:mb-8 leading-relaxed">
                                 Lleva el control de vacunas, citas, medicamentos y el historial completo de salud de tu mascota con nuestra plataforma intuitiva.
                             </p>
-
+                            
                             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto py-2">
-                                <button className="group flex items-center justify-center 
-            bg-gradient-to-r from-cyan-500 to-teal-600 
-            shadow-xl text-white font-medium 
-            px-8 py-4 text-lg rounded-xl gap-3
-            hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
-                                    Comenzar
-                                    <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
+                                <button
+                                onClick={() => navigate("/login")}
+                                className="group flex items-center justify-center bg-gradient-to-r from-cyan-500 to-teal-600 shadow-xl text-white font-medium px-8 py-4 text-lg rounded-xl gap-3 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
+                                >
+                                Comenzar
+                                <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
                                 </button>
                             </div>
 

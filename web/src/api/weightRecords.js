@@ -1,34 +1,53 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+import { supabase } from "./supabaseClient";
 
-// Obtener historial de peso
+// Obtener historial de peso por mascota
 export const getWeightRecordsRequest = async (petId) => {
-  const token = localStorage.getItem("token");
+  if (!petId) return [];
 
-  const res = await fetch(`${API_URL}/pets/${petId}/weight`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    credentials: "include",
-  });
+  const { data, error } = await supabase
+    .from("weight_records")
+    .select("*")
+    .eq("pet_id", petId)
+    .order("recorded_at", { ascending: true });
 
-  if (!res.ok) throw new Error("Error al cargar historial de peso");
-  return res.json();
+  if (error) {
+    throw new Error(error.message || "Error al cargar historial de peso");
+  }
+
+  return data ?? [];
 };
 
 // Crear registro de peso
-export const createWeightRecordRequest = async (petId, data) => {
-  const token = localStorage.getItem("token");
+export const createWeightRecordRequest = async (petId, data = {}) => {
+  if (!petId) {
+    throw new Error("El ID de la mascota es obligatorio para guardar el peso");
+  }
 
-  const res = await fetch(`${API_URL}/pets/${petId}/weight`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(data),
-    credentials: "include",
-  });
+  const rawWeight = typeof data === "object" ? data.weight : data;
+  const parsedWeight = Number(rawWeight);
 
-  if (!res.ok) throw new Error("Error al guardar peso");
-  return res.json();
+  if (Number.isNaN(parsedWeight)) {
+    throw new Error("El valor del peso debe ser numérico");
+  }
+
+  const payload = {
+    pet_id: petId,
+    weight: parsedWeight,
+    recorded_at:
+      typeof data === "object" && data.recorded_at
+        ? data.recorded_at
+        : new Date().toISOString(),
+  };
+
+  const { data: created, error } = await supabase
+    .from("weight_records")
+    .insert([payload])
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(error.message || "Error al guardar peso");
+  }
+
+  return created;
 };

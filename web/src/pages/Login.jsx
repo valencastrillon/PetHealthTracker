@@ -1,19 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { FaHeart, FaEnvelope, FaLock } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import InputForm from "../Components/InputForm";
-import { Link } from "react-router-dom";
-import { loginRequest } from "../api/auth";
-import { useNavigate } from "react-router-dom";
-import { useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login } = useContext(AuthContext);
+  const { login, loginWithGoogle } = useContext(AuthContext);
 
   const [error, setError] = useState(null);
-
   const [form, setForm] = useState({ email: "", password: "" });
 
   const handleChange = (e) => {
@@ -24,18 +20,15 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validación de campos vacíos
     if (!form.email.trim() || !form.password.trim()) {
       return setError("Todos los campos son obligatorios");
     }
 
-    // Validación de formato email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(form.email)) {
       return setError("Ingrese un correo electrónico válido");
     }
 
-    // Contraseña mínima
     if (form.password.length < 6) {
       return setError("La contraseña debe tener al menos 6 caracteres");
     }
@@ -43,17 +36,24 @@ const Login = () => {
     setError(null);
 
     try {
-      const result = await login(form.email, form.password);
-      console.log("Login exitoso:", result);
-
+      await login(form.email, form.password);
       navigate("/dashboard");
-    } catch (error) {
+    } catch {
       setError("Credenciales incorrectas");
     }
   };
 
+  const handleGoogleLogin = async () => {
+    setError(null);
+    try {
+      await loginWithGoogle();
+    } catch {
+      setError("No se pudo iniciar sesión con Google");
+    }
+  };
+
   return (
-    <div className='className="min-h-screen bg-gradient-to-br p-4 from-emerald-50 via-blue-50 to-purple-50 flex items-center justify-center p-4">'>
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-purple-50 flex items-center justify-center p-4">
       <div className="text-card-foreground flex flex-col gap-6 rounded-xl w-full max-w-md bg-white/90 backdrop-blur shadow-2xl border-0 p-8">
         <div className="text-center mb-3">
           <div className="w-16 h-16 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg">
@@ -105,34 +105,28 @@ const Login = () => {
           </div>
 
           <button
-          onClick={() => {
-            window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`
-          }}
+            onClick={handleGoogleLogin}
             type="button"
-            className="
-           flex  items-center justify-center gap-2
-      w-full max-w-xs py-3 px-4 rounded-xl  border-gray-200 border-2
-      bg-white text-sm font-medium text-foreground 
-      hover:border-emerald-300 transition hover:bg-emerald-50
-    "
+            className="flex items-center justify-center gap-2 w-full max-w-xs py-3 px-4 rounded-xl border-gray-200 border-2 bg-white text-sm font-medium text-foreground hover:border-emerald-300 transition hover:bg-emerald-50"
           >
             <FcGoogle /> Iniciar Sesión con Google
           </button>
+
           <p className="text-sm text-emerald-600 hover:text-emerald-700 cursor-pointer">
             ¿No tienes cuenta?{" "}
             <Link
               to="/register"
-              className="text-emerald-600 hover:text-emerald-700 cursor-pointer "
+              className="text-emerald-600 hover:text-emerald-700 cursor-pointer"
             >
               Regístrate
             </Link>
           </p>
-          <a
-            href="/"
-            className="text-sm text-gray-500 hover:text-gray-700 cursor-pointer  mt-3"
+          <Link
+            to="/"
+            className="text-sm text-gray-500 hover:text-gray-700 cursor-pointer mt-3"
           >
             ← Volver al inicio
-          </a>
+          </Link>
         </div>
       </div>
     </div>
