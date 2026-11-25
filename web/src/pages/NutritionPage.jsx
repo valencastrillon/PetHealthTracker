@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
-import NutritionSection from '../components/nutrition/NutritionSection';
-import NutritionPageSkeleton from '../components/nutrition/NutritionPageSkeleton';
+import NutritionSection from '../Components/nutrition/NutritionSection';
+import NutritionPageSkeleton from '../Components/nutrition/NutritionPageSkeleton';
 import { usePets } from '../hooks/usePets';
 
 export default function NutritionPage() {
@@ -8,6 +8,7 @@ export default function NutritionPage() {
 
   useEffect(() => {
     getPets();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (loading && pets.length === 0) {
