@@ -1,6 +1,17 @@
 <div align="center">
 
-<img src="web/public/logo.png" alt="PetHealthTracker Logo" width="88" />
+<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 32 32" fill="none">
+  <defs>
+    <linearGradient id="pethealth-grad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#06b6d4" />
+      <stop offset="100%" stop-color="#0d9488" />
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="8" fill="url(#pethealth-grad)" />
+  <g transform="translate(8, 8) scale(0.6667)">
+    <path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5" fill="#ffffff" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+</svg>
 
 # PetHealthTracker
 
@@ -93,7 +104,6 @@ valencastrillon/PetHealthTracker
 │   │   ├── App.jsx                 # Enrutamiento principal y protección de rutas
 │   │   └── main.jsx                # Punto de entrada de React
 │   ├── .env.example                # Plantilla de variables de entorno
-│   ├── netlify.toml                # Configuración de build y redirecciones SPA
 │   ├── package.json                # Dependencias y scripts
 │   └── vite.config.js              # Configuración de Vite
 └── server/                         # Estructura de referencia del backend legado
