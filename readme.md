@@ -1,7 +1,5 @@
 <div align="center">
 
-  <img src="web/public/logo.svg" alt="PetHealthTracker Logo" width="80" height="80" />
-
 # PetHealthTracker
 
 **La plataforma integral para el seguimiento de la salud, nutrición e historial clínico de tus mascotas.**<br/>
@@ -139,4 +137,4 @@ npm install
 
 ## Licencia
 
-El código fuente se distribuye bajo la licencia **MIT**.
+El código fuente se distribuye bajo la licencia [**MIT**](https://github.com/valencastrillon/PetHealthTracker?tab=MIT-1-ov-file).
