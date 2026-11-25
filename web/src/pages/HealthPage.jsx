@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import TabNavigation from "../components/health/TabNavigation";
+import TabNavigation from "../Components/health/TabNavigation";
 import { Stethoscope, Plus } from "lucide-react";
-import HealthRecordForm from "../components/health/HealthRecordForm";
-import Modal from "../components/common/Modal"; 
+import HealthRecordForm from "../Components/health/HealthRecordForm";
+import Modal from "../Components/common/Modal"; 
 import HealthRecordDetail from "./HealthRecordDetailPage";
 import { toast } from "react-hot-toast";
-import RecordCard from "../components/health/RecordCard";
+import RecordCard from "../Components/health/RecordCard";
 import { useHealthRecords } from '../hooks/useHealthRecords';
 
 const HealthPage = () => {
@@ -42,6 +42,7 @@ const HealthPage = () => {
   // Cargar registros al montar el componente
   useEffect(() => {
     loadHealthRecords();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadHealthRecords = async () => {

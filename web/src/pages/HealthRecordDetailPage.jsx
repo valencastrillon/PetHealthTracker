@@ -4,20 +4,19 @@ import { AlertCircle, ChevronLeft } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { useHealthRecordDetail } from "../hooks/useHealthRecordDetail";
 import { useHealthRecords } from "../hooks/useHealthRecords";
-import HealthRecordDetailSkeleton from "../components/health/HealthRecordDetailSkeleton";
-import PetInfoCard from "../components/health/PetInfoCard";
-import HealthInfoCard from "../components/health/HealthInfoCard";
-import HealthRecordHeader from "../components/health/HealthRecordHeader";
-import DocumentList from "../components/health/DocumentList";
-import ActionSidebar from "../components/health/ActionSidebar";
-import ConfirmModal from "../components/common/ConfirmModal";
-import HealthRecordForm from "../components/health/HealthRecordForm";
-import Modal from "../components/common/Modal";
+import HealthRecordDetailSkeleton from "../Components/health/HealthRecordDetailSkeleton";
+import PetInfoCard from "../Components/health/PetInfoCard";
+import HealthInfoCard from "../Components/health/HealthInfoCard";
+import HealthRecordHeader from "../Components/health/HealthRecordHeader";
+import DocumentList from "../Components/health/DocumentList";
+import ActionSidebar from "../Components/health/ActionSidebar";
+import ConfirmModal from "../Components/common/ConfirmModal";
+import HealthRecordForm from "../Components/health/HealthRecordForm";
+import Modal from "../Components/common/Modal";
 
 const HealthRecordDetailPage = () => {
   const [showEditModal, setShowEditModal] = useState(false);
-  const { updateHealthRecord, getHealthRecord, deleteHealthRecord } =
-    useHealthRecords();
+  const { updateHealthRecord} = useHealthRecords();
 
   const {
     record,
@@ -121,7 +120,7 @@ const HealthRecordDetailPage = () => {
     setShowEditModal(true);
   };
 
-  const handleEditSuccess = (updatedRecord) => {
+  const handleEditSuccess = () => {
     // Recargar los datos del servidor
     loadRecord();
     toast.success("✅ Registro actualizado correctamente");

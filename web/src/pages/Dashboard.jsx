@@ -3,14 +3,14 @@ import { FaHeart, FaCalendarAlt, FaExclamationTriangle } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { Plus } from "lucide-react";
 
-import PetList from "../components/pets/PetList";
+import PetList from "../Components/pets/PetList";
 import { usePets } from "../hooks/usePets";
-import UpcomingEvents from "../components/reminders/UpcomingEvents";
-import QuickActions from "../components/QuickActions";
+import UpcomingEvents from "../Components/reminders/UpcomingEvents";
+import QuickActions from "../Components/QuickActions";
 import { useAuth } from "../hooks/useAuth";
-import SkeletonPetCard from "../components/pets/SkeletonPetCard";
+import SkeletonPetCard from "../Components/pets/SkeletonPetCard";
 import { useReminders } from "../hooks/useReminders";
-import UpcomingEventsSkeleton from "../components/reminders/UpcomingEventsSkeleton";
+import UpcomingEventsSkeleton from "../Components/reminders/UpcomingEventsSkeleton";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -21,6 +21,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     getPets();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -42,6 +43,7 @@ const Dashboard = () => {
     };
 
     fetchEvents();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

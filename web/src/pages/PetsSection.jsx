@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import PetList from "../components/pets/PetList";
-import AddPetBtn from "../components/pets/AddPetBtn";
-import Modal from "../components/pets/Modal";
-import PetForm from "../components/pets/PetForm";
+import PetList from "../Components/pets/PetList";
+import AddPetBtn from "../Components/pets/AddPetBtn";
+import Modal from "../Components/pets/Modal";
+import PetForm from "../Components/pets/PetForm";
 import { Search } from "lucide-react";
 
 import PetProfilePage from "./PetProfilePage";
-import SkeletonPetCard from "../components/pets/SkeletonPetCard";
+import SkeletonPetCard from "../Components/pets/SkeletonPetCard";
 
 import { usePets } from "../hooks/usePets";
 import { useAuth } from "../hooks/useAuth";
@@ -29,6 +29,7 @@ const PetsSection = () => {
 
   useEffect(() => {
     getPets();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const openPetProfile = (pet) => {
@@ -54,7 +55,7 @@ const PetsSection = () => {
       closeCreateModal();
       toast.dismiss(loadingToast);
       toast.success("Mascota creada exitosamente");
-    } catch (error) {
+    } catch {
       toast.dismiss(loadingToast);
       toast.error("Error al crear mascota");
     }

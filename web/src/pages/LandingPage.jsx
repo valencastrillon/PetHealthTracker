@@ -1,13 +1,13 @@
 import React from "react";
-import Header from "../components/landing/Header";
-import Banner from "../components/landing/Banner";
-import Testimonials from "../components/Testimonios/Testimonials";
-import CallToAction from "../components/CallToAction/CallToAction";
-import FAQ from "../components/landing/FAQ";
-import Footer from "../components/landing/Footer";
-import BenefitsSection from "../components/landing/BenefitsSection";
-import ServicesSection from "../components/landing/ServicesSection";
-import InfoSection from "../components/landing/InfoSection";
+import Header from "../Components/landing/Header";
+import Banner from "../Components/landing/Banner";
+import Testimonials from "../Components/Testimonios/Testimonials";
+import CallToAction from "../Components/CallToAction/CallToAction";
+import FAQ from "../Components/landing/FAQ";
+import Footer from "../Components/landing/Footer";
+import BenefitsSection from "../Components/landing/BenefitsSection";
+import ServicesSection from "../Components/landing/ServicesSection";
+import InfoSection from "../Components/landing/InfoSection";
 
 const LandingPage = () => {
   return (

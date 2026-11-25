@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Bell, CalendarDays, Plus } from "lucide-react";
-import Calendar from "../components/reminders/Calendar";
-import AddReminderModal from "../components/reminders/AddReminderModal";
-import RemindersList from "../components/reminders/RemindersList";
+import Calendar from "../Components/reminders/Calendar";
+import AddReminderModal from "../Components/reminders/AddReminderModal";
+import RemindersList from "../Components/reminders/RemindersList";
 import { useReminders } from "../hooks/useReminders";
 import { usePets } from "../hooks/usePets";
 
@@ -30,6 +30,7 @@ const Reminders = () => {
     };
 
     loadReminders();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleAddReminder = async (data) => {
